@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Redis Counter Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    >
+  </head>
+  <body class="bg-dark text-light">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card text-center">
+            <div class="card-header bg-primary text-white">
+              Redis Counter Demo
+            </div>
+            <div class="card-body">
+              <h1 class="display-3" id="counter-value">--</h1>
+              <p class="text-muted mb-2">Served by pod: <span id="pod-name">--</span></p>
+              <button id="increment-btn" class="btn btn-success btn-lg">
+                Increment Counter
+              </button>
+            </div>
+            <div class="card-footer text-muted">
+              Load-balanced across multiple API pods
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function fetchValue() {
+        try {
+          const resp = await fetch('/api/value');
+          const data = await resp.json();
+          document.getElementById('counter-value').textContent = data.value;
+          document.getElementById('pod-name').textContent = data.pod;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      async function increment() {
+        try {
+          const resp = await fetch('/api/increment', {
+            method: 'POST'
+          });
+          const data = await resp.json();
+          document.getElementById('counter-value').textContent = data.value;
+          document.getElementById('pod-name').textContent = data.pod;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      document.getElementById('increment-btn').addEventListener('click', increment);
+
+      // Initial load + periodic refresh to see load-balancing across pods
+      fetchValue();
+      setInterval(fetchValue, 3000);
+    </script>
+  </body>
+</html>
+
