@@ -1,15 +1,19 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import os
 import redis
 import socket
 
 app = Flask(__name__)
 
-REDIS_HOST = os.getenv("REDIS_HOST", "redis")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-COUNTER_KEY = os.getenv("COUNTER_KEY", "demo-counter")
+# enable cross origin 
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+COUNTER_KEY = "k3s-demo-counter"
+
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True)
 hostname = socket.gethostname()
 
 
@@ -34,5 +38,9 @@ def healthz():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(
+        host="0.0.0.0", 
+        port=8000, 
+        debug=True
+    )
 
